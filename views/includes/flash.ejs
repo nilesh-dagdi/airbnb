@@ -1,0 +1,17 @@
+<% if(success && success.length){  //yha if ke aandar sirf succes nhi likha becoz sucess is a array so as when sucess mai kuch nhi hai tb bhi success arry to hai hi i.e.empty hai pr hai to shi so is mai vo empty dikhega on page %> 
+    <div class="alert alert-success alert-dismissible fade show col-6 offset-3" role="alert">
+        <%= success %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">  
+  </button>
+               <!-- <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> -->
+    </div>
+<%}%>
+
+<% if(error && error.length){  //yha if ke aandar sirf succes nhi likha becoz sucess is a array so as when sucess mai kuch nhi hai tb bhi success arry to hai hi i.e.empty hai pr hai to shi so is mai vo empty dikhega on page %> 
+    <div class="alert alert-danger alert-dismissible fade show col-6 offset-3" role="alert">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">  
+  </button>
+               <!-- <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> -->
+    </div>
+<%}%>
