@@ -1,8 +1,14 @@
+if(process.env.NODE_ENV !="production"){
+  require("dotenv").config();
+}
+
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
+const mongoose = require("mongoose");  
 const path = require("path");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
+
 const flash = require("connect-flash");
 
 app.set("view engine","ejs");
@@ -25,9 +31,8 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
+const dbUrl =  process.env.ATLASDB_URL;
 
-
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 main()
    .then(() => {
     console.log("connected to DB");
@@ -36,11 +41,24 @@ main()
     console.log(err);
    }) 
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
 }
 
+const store = MongoStore.create({
+  mongoUrl:dbUrl,
+  crypto:{
+    secret:process.env.SECRET,
+  },
+  touchAfter:24*3600,
+});
+
+store.on("error",()=>{
+  console.log("ERROR in MONGO SESSION STORE",err);
+})
+
 const sessioOptions = {
-  secret:"mysupersecret",
+  store,
+  secret:process.env.SECRET,
   resave:false,
   saveUninitialized:true,
   cookie:{
@@ -50,9 +68,11 @@ const sessioOptions = {
   },
 };
 
-app.get("/",(req,res)=>{
-  res.send("Hi, i am root");
-});
+// app.get("/",(req,res)=>{
+//   res.send("Hi, i am root");
+// });
+
+
 
 app.use(session(sessioOptions));
 app.use(flash());
@@ -67,6 +87,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req,res,next)=>{
   res.locals.success =  req.flash("success");
   res.locals.error =  req.flash("error");
+  res.locals.currUser = req.user;
   next();
 });
 
@@ -83,7 +104,7 @@ app.get("/demouser", async(req,res)=>{
 });
 
 app.use("/listings",listingRouter);
-app.use("/listings/:id/reviews",reviewRouter);
+app.use("/listings", reviewRouter);
 app.use("/",userRouter);
 
 
